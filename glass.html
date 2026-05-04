@@ -1,0 +1,38 @@
+<!doctype html>
+<canvas width=256 height=256></canvas>
+<script>
+const canvas = document.getElementsByTagName("canvas")[0];
+const ctx = canvas.getContext("2d");
+const id = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+function lerp(a, b, t) {
+  return a * (1 - t) + b * t;
+}
+
+function draw() {
+  for(let y = 0, i = 0; y < id.height; y++) {
+    for(let x = 0; x < id.width; x++) {
+      const u = (x * 2 + 1) / id.width  - 1;
+      const v = (y * 2 + 1) / id.height - 1;
+      const d = 1 - u * u - v * v;
+      if(d < 0) {
+        id.data[i++] = id.data[i++] = id.data[i++] = 0;
+        id.data[i++] = 255;
+        continue;
+      }
+
+      const w = Math.sqrt(d);
+      const a = -u / Math.sqrt(5) + -v / Math.sqrt(5) + w * Math.sqrt(3) / Math.sqrt(5);
+      const b = u / Math.sqrt(5) + v / Math.sqrt(5) + w * Math.sqrt(3) / Math.sqrt(5);
+      id.data[i++] = a * a * a * a * 255;
+      id.data[i++] = lerp((1 + b * b) / 3, 1, a * a * a * a) * 255;
+      id.data[i++] = lerp((1 + b * b) / 3, 1, a * a * a * a) * 255;
+      id.data[i++] = 255;
+    }
+  }
+
+  ctx.putImageData(id, 0, 0);
+}
+
+draw();
+</script>
